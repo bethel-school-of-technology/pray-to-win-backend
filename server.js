@@ -15,7 +15,7 @@ const terminal = require("./config/terminal");
 //
 // Initialize Express
 //
-const port = process.env.PORT || 3000;
+const port = config.port;
 const app = express();
 const fancyTerminal = process.env.FANCY_TERMINAL || false;
 
