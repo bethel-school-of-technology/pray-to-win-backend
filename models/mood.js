@@ -3,13 +3,11 @@
 //
 var mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const helper = require("../config/helpers");
-const bcrypt = require("bcrypt");
 
 //
 // Schema
 //
-const UserSchema = new Schema({
+const MoodSchema = new Schema({
   name: { type: String, default: "" },
   email: { type: String, default: "" },
   username: { type: String, default: "" },
@@ -20,7 +18,7 @@ const UserSchema = new Schema({
 //
 //  Virtuals
 //
-UserSchema.virtual("password")
+MoodSchema.virtual("password")
   .set(function (password) {
     this._password = password;
     this.hashed_password = this.hashPassword(password);
@@ -32,15 +30,15 @@ UserSchema.virtual("password")
 //
 // Validate Data
 //
-UserSchema.path("name").validate(function (name) {
+MoodSchema.path("name").validate(function (name) {
   return name.length;
 }, "Name required");
 
-UserSchema.path("email").validate(function (email) {
+MoodSchema.path("email").validate(function (email) {
   return email.length;
 }, "Email required");
 
-UserSchema.path("email").validate(function (email) {
+MoodSchema.path("email").validate(function (email) {
   return new Promise((resolve) => {
     const User = mongoose.model("User");
     if (this.isNew || this.isModified("email")) {
@@ -51,43 +49,25 @@ UserSchema.path("email").validate(function (email) {
   });
 });
 
-UserSchema.path("username").validate(function (username) {
+MoodSchema.path("username").validate(function (username) {
   return username.length;
 }, "Username required");
 
-UserSchema.path("hashed_password").validate(function (hashed_password) {
+MoodSchema.path("hashed_password").validate(function (hashed_password) {
   return hashed_password.length;
 }, "Password required");
 
 //
 // Methods
 //
-UserSchema.methods = {
+MoodSchema.methods = {
   //
   // Check Password match
   //
-  authenticate: function (password, callback) {
-    // THIS IS NOT USING HASHING YET! UPDATE THIS
-    bcrypt.compare(password, this.hashed_password, function (err, match) {
-      if (err) {
-        return callback(err);
-      }
-      callback(null, match);
-    });
-  },
-
-  //
-  // Passsword Hashing Function
-  //
-  hashPassword: function (password) {
-    // This is NOT hashing yet
-    if (!password) return "";
-    try {
-      return bcrypt.hashSync(password, 10);
-    } catch (err) {
-      return "";
-    }
+  test: function (inputValue, callback) {
+    let modifyValue = inputValue + " is modified";
+    return modifyValue;
   },
 };
 
-mongoose.model("User", UserSchema);
+mongoose.model("Mood", MoodSchema);

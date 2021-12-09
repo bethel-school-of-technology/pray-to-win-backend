@@ -1,14 +1,17 @@
 //
 // Dependencies
 //
-const { json } = require("body-parser");
+
+//
+//  Controllers
+//
 const authController = require("../controllers/auth");
-const terminal = require("./terminal");
-const authGuard = require("../middlewares/authJwt");
+const moodController = require("../controllers/mood");
 
 //
 // Middleware
 //
+const authGuard = require("../middlewares/authJwt");
 
 //
 // Routes
@@ -28,4 +31,6 @@ module.exports = function (app, passport) {
   //
   // Mood Routes
   //
+  app.get("/mood/test", moodController.test);
+  app.get("/butts", moodController.create);
 };
