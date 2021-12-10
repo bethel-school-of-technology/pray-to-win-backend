@@ -27,7 +27,11 @@ module.exports = function (app, passport) {
   //
   // User Profile Routes
   //
-  app.get("/profile/id", authController.id);
+  app.get("/profile/id", authController.test);
+  /* -- this route is set to the wrong thing
+        I changed it to test to fix bugs
+  */
+
   //
   // Mood Routes
   //

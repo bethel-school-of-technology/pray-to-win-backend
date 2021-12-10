@@ -27,7 +27,6 @@ let terminalWriter = new MorganStream();
 module.exports = function (app) {
   // Express configuration
 
-  var data = "";
   app.use(express.json());
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(cookieParser());
