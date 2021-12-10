@@ -4,10 +4,18 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 const logger = require("morgan");
 const Writeable = require("stream").Writable;
 const terminal = require("./terminal");
 const fancyTerminal = process.env.FANCY_TERMINAL || false;
+
+//
+// CORS Config
+//
+let corsOptions = {
+  origin: ["http://localhost:3000", "http://localhost:4200"],
+};
 
 //
 // Advanced Morgan Config
@@ -30,6 +38,7 @@ module.exports = function (app) {
   app.use(express.json());
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(cookieParser());
+  app.use(cors(corsOptions));
 
   // This gets the response body
   // and outputs to fancy terminal view
