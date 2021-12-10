@@ -3,8 +3,6 @@
 //
 var mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const helper = require("../config/helpers");
-const bcrypt = require("bcrypt");
 
 //
 // Schema

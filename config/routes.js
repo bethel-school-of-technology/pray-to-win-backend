@@ -27,10 +27,11 @@ module.exports = function (app, passport) {
   //
   // User Profile Routes
   //
-
+  app.get("/profile/id", authController.id);
   //
   // Mood Routes
   //
   app.get("/mood/test", moodController.test);
-  app.get("/butts", moodController.create);
+  app.get("/mood/create", moodController.create);
+  app.post("/mood/update", moodController.update);
 };
