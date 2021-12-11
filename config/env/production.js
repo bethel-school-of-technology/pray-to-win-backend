@@ -1,7 +1,16 @@
-const port = process.env.PORT || 3000;
-const dbCollection = process.env.MONGODB_COLLECTION || "prayToWin";
-const mongourl = process.env.MONGODB_URL || "mongodb://localhost:27017/";
+const port = process.env.PORT;
+const dbCollection = process.env.MONGODB_COLLECTION;
+const mongourl = process.env.MONGODB_URL;
+const jwtSecret = process.env.JWT_SECRET;
+const fancyTerm = 1;
 
-module.exports = {
-  db: mongourl + dbCollection,
+module.exports = () => {
+  let config = {
+    db: mongourl + dbCollection,
+    port: port,
+    secret: jwtSecret,
+    fancyTerm: fancyTerm,
+  };
+
+  return config;
 };
