@@ -3,23 +3,21 @@
 //
 const mongoose = require("mongoose");
 const { wrap: async } = require("co");
-const Mood = mongoose.model("Mood");
+const User = mongoose.model("Profile");
 
 exports.test = async(function (req, res, next) {
-  res.json({ test: "MOOD Test route works" });
+  res.json({ test: "Profile route works" });
 });
 
 exports.create = async(function* (req, res) {
-  // This is where the create Mood Logic Goes
-  const mood = new Mood(req.body);
+  const user = new User(req.body);
   try {
-    yield mood.save();
+    yield user.save();
     res.json({
-      message: "Mood created",
+      message: "User Successfully created!",
     });
   } catch (err) {
     res.status(400).json(err);
   }
 });
 
-exports.update = async(function (req, res, next) {});

@@ -5,10 +5,18 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 const logger = require("morgan");
 const Writeable = require("stream").Writable;
 const terminal = require("./terminal");
 const fancyTerminal = process.env.FANCY_TERMINAL || false;
+
+//
+// CORS Config
+//
+let corsOptions = {
+  origin: ["http://localhost:3000", "http://localhost:4200"],
+};
 
 //
 // Advanced Morgan Config
