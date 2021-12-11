@@ -3,6 +3,7 @@
 //
 const express = require("express");
 const bodyParser = require("body-parser");
+const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const logger = require("morgan");
@@ -35,6 +36,11 @@ let terminalWriter = new MorganStream();
 module.exports = function (app) {
   // Express configuration
 
+  let corsOptions = {
+    origin: ["http://localhost:3000", "http://localhost:4200"],
+  };
+
+  var data = "";
   app.use(express.json());
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(cookieParser());
