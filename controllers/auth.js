@@ -5,7 +5,8 @@ const mongoose = require("mongoose");
 const { wrap: async } = require("co");
 const User = mongoose.model("User");
 var jwt = require("jsonwebtoken");
-const secret = process.env.SECRET || "devsecret";
+const secret = process.env.JWT_SECRET;
+const config = require("../config").getConfig;
 
 exports.test = async(function (req, res, next) {
   res.json({ test: "Test route works" });
@@ -24,24 +25,25 @@ exports.create = async(function* (req, res) {
 });
 
 exports.login = async(function* (req, res) {
-  console.log("LOGGING IN?");
   User.findOne(
     {
       username: req.body.username,
     },
     function (err, user) {
       if (err) throw err;
-      console.log(user);
       if (!user) {
         res.status(401).json({ message: "No User Found" });
       } else {
-        user.authenticate(req.body.password, function (err, match) {
-          console.log(match);
-          console.log(user);
+        user.authenticate(req.body.password, async function (err, match) {
           if (match && !err) {
-            var token = jwt.sign({ id: user.id }, secret, {
-              expiresIn: "1hr",
-            });
+            var token = await jwt.sign(
+              {
+                exp: Math.floor(Date.now() / 1000) + 60 * 60,
+                id: user.id,
+                username: user.username,
+              },
+              secret
+            );
             res.status(200).json({ success: true, token: token });
           } else {
             res.status(401).json({ success: "false", message: "Bad Info" });

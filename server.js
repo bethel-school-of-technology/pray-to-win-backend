@@ -9,13 +9,14 @@ require("dotenv").config();
 var clc = require("cli-color");
 const express = require("express");
 const mongoose = require("mongoose");
-const config = require("./config");
+const cfg = require("./config").config;
+const setConfig = require("./config").setConfig;
+let appConfig;
 const terminal = require("./config/terminal");
 
 //
 // Initialize Express
 //
-const port = config.port;
 const app = express();
 const fancyTerminal = process.env.FANCY_TERMINAL || false;
 
@@ -36,11 +37,11 @@ require("./config/routes")(app);
 //
 function listen() {
   if (app.get("env") === "test") return;
-  app.listen(port);
-  if (fancyTerminal == 2) terminal.initialize();
+  app.listen(appConfig.port);
+  if (appConfig.fancyTerm == 2) terminal.initialize();
   else {
     // Standard terminal view
-    process.stdout.write("\u001b[3J\u001b[2J\u001b[1J");
+    //process.stdout.write("\u001b[3J\u001b[2J\u001b[1J");
     console.clear();
     console.log(
       clc.bgMagenta("Mood") +
@@ -48,24 +49,30 @@ function listen() {
         "\n" +
         clc.bgGreen("ONLINE!") +
         "\n" +
-        clc.bgWhite("PORT:" + port)
+        clc.bgWhite("PORT:" + appConfig.port + "\nPRESS CTRL+C TO ESCAPE")
     );
   }
 }
 
-function connect() {
-  mongoose.connection
-    .on("error", console.log)
-    .on("disconnected", connect)
-    .once("open", listen);
-  return mongoose.connect(config.db, {
+const mongoConnect = (url) => {
+  return mongoose.connect(url, {
     keepAlive: 1,
     useNewUrlParser: true,
     useUnifiedTopology: true,
+  });
+};
+
+function startServer() {
+  // Gets CONFIG and sets
+  cfg.getConfig().then((config) => {
+    appConfig = config;
+    setConfig(config);
+    mongoose.connection.on("error", console.log).once("open", listen);
+    mongoConnect(config.db);
   });
 }
 
 //
 // Star Server
 //
-connect();
+startServer();

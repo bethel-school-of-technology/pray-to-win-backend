@@ -22,7 +22,7 @@ Install dependencies
   npm install
 ```
 
-Start the server
+Start the server in DEV DEBUG mode. This mode has the added benefit of showing request and response body in the terminal as well as logs of each route triggered in express.
 
 ```bash
   npm run start
@@ -38,14 +38,41 @@ To run this project, you will need to add the following environment variables to
 `MONGODB_PASS`
 `NODE_ENV`
 `PORT`
-`FANCY_TERMINAL`
 `SECRET`
 
-Set `FANCY_TERMINAL` to `2` for special debug output (mainly for debugging front end)
+## Package.json Scripts
+
+### Start Server with PM2
 
 ```bash
-FANCY_TERMINAL=2
+  npm run prod-start
 ```
+
+This will start the server with PM2 which will auto-restart the server if it crashes as well as run the server in the background of your terminal and keep the server alive. This is intended to be used in a production environment to restart server in case there is a crash.
+
+### View PM2 Logs from Server Instance
+
+```bash
+  npm run prod-logs
+```
+
+This allows you to view the logs from the PM2 server instance.
+
+### Kill PM2 Server Instance
+
+```bash
+  npm run prod-kill
+```
+
+This kills the PM2 Server instance completely.
+
+### Kill ALL PM2 Instances
+
+```bash
+  npm run prod-killall
+```
+
+This is intended as a shortcut command to kill ALL PM2 instances in case of some weird malfunction.
 
 ## Documentation
 
