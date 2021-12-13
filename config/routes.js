@@ -27,10 +27,15 @@ module.exports = function (app, passport) {
   //
   // User Profile Routes
   //
+  app.get("/profile/id", authController.test);
+  /* -- this route is set to the wrong thing
+        I changed it to test to fix bugs
+  */
 
   //
   // Mood Routes
   //
   app.get("/mood/test", moodController.test);
-  app.get("/butts", moodController.create);
+  app.get("/mood/create", moodController.create);
+  app.post("/mood/update", moodController.update);
 };

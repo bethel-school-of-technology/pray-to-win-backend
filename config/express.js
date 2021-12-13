@@ -11,6 +11,13 @@ const terminal = require("./terminal");
 const fancyTerminal = process.env.FANCY_TERMINAL || false;
 
 //
+// CORS Config
+//
+let corsOptions = {
+  origin: ["http://localhost:3000", "http://localhost:4200"],
+};
+
+//
 // Advanced Morgan Config
 //
 class MorganStream extends Writeable {
