@@ -36,6 +36,7 @@ module.exports = function (app, passport) {
   // Mood Routes
   //
   app.get("/mood/test", moodController.test);
-  app.get("/mood/create", moodController.create);
+  app.post("/mood/create", moodController.create);
   app.post("/mood/update", moodController.update);
+  app.post("/mood/delete", moodController.delete);
 };

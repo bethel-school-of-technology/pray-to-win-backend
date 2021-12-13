@@ -10,8 +10,8 @@ exports.test = async(function (req, res, next) {
 });
 
 exports.create = async(function* (req, res) {
-  // This is where the create Mood Logic Goes
   const mood = new Mood(req.body);
+  console.log(mood);
   try {
     yield mood.save();
     res.json({
@@ -22,4 +22,16 @@ exports.create = async(function* (req, res) {
   }
 });
 
-exports.update = async(function (req, res, next) {});
+exports.read = async(function (req, res, next) {
+
+});
+
+exports.update = async(function (req, res, next) {
+
+});
+
+exports.delete = async(function (req, res){
+  
+});
+
+
