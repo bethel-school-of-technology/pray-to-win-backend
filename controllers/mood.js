@@ -4,14 +4,15 @@
 const mongoose = require("mongoose");
 const { wrap: async } = require("co");
 const Mood = mongoose.model("Mood");
+const resBuild = require("../shared/response").sendResponse;
 
 exports.test = async(function (req, res, next) {
   Mood.findById();
-  res.json({ test: "MOOD Test route works" });
+  res.json(resBuild(true, "Mood Test Route works!"));
 });
 
 exports.create = async(function (req, res, next) {
   // This is where the create Mood Logic Goes
 
-  res.json({ mood: "mood was created!" });
+  res.json(resBuild(true, "Mood Create Route works!"));
 });
