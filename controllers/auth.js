@@ -10,7 +10,7 @@ const config = require("../config").getConfig;
 const resBuild = require("../shared/response").sendResponse;
 
 exports.test = async(function (req, res, next) {
-  res.json({ test: "Test route works" });
+  res.json(resBuild(true, "Test Route Works!"));
 });
 
 exports.create = async(function* (req, res) {
@@ -19,7 +19,7 @@ exports.create = async(function* (req, res) {
     yield user.save();
     res.json(resBuild(true, "User Created!", { username: user.username }));
   } catch (err) {
-    res.status(400).json(err);
+    res.status(400).json(resBuild(false, "User Creation Error", err));
   }
 });
 
@@ -31,7 +31,7 @@ exports.login = async(function* (req, res) {
     function (err, user) {
       if (err) throw err;
       if (!user) {
-        res.status(401).json(resBuild(false, "User Not Found", null));
+        res.status(401).json(resBuild(false, "User Not Found"));
       } else {
         user.authenticate(req.body.password, async function (err, match) {
           if (match && !err) {
@@ -47,7 +47,7 @@ exports.login = async(function* (req, res) {
               .status(200)
               .json(resBuild(true, "Successfully Logged in!", { token }));
           } else {
-            res.status(401).json({ success: "false", message: "Bad Info" });
+            res.status(401).json(resBuild(false, "Bad Info"));
           }
         });
       }
