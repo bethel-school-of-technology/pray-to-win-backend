@@ -23,15 +23,40 @@ exports.create = async(function* (req, res) {
 });
 
 exports.read = async(function (req, res, next) {
-
+  let reqId = req.query.id;
+  Mood.findOne({ _id: reqId }, (err, result) => {
+    if (err) {
+      res.json(resBuild(false, "Failed to read mood", err))
+    } else {
+      res.json(resBuild(true, "Read mood", result))
+    }
+  })
 });
 
 exports.update = async(function (req, res, next) {
-
+  let reqId = req.body.id;
+  let update = {};
+    if(req.body.mood) update.mood = req.body.mood;
+    if(req.body.changes) update.changes = req.body.changes 
+    if(req.body.makeChanges) update.makeChanges = req.body.makeChanges;
+    if(req.body.details) update.details = req.body.details;
+  Mood.findOneAndUpdate({ _id: reqId }, update, (err, result) => {
+    if (err) {
+      res.json(resBuild(false, "Failed to update mood", err))
+    } else {
+      res.json(resBuild(true, "Updated mood", result))
+    }
+    const opts = { new: true };
+  })
 });
 
-exports.delete = async(function (req, res){
-  
+exports.delete = async(function (req, res) {
+  let reqId = req.body.id;
+  Mood.findOneAndDelete({ _id: reqId }, {}, (err, result) => {
+    if (err) {
+      res.json(resBuild(false, "Failed to delete mood", err))
+    } else {
+      res.json(resBuild(true, "Deleted mood", result))
+    }
+  })
 });
-
-

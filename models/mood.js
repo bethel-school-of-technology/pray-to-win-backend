@@ -16,11 +16,6 @@ const MoodSchema = new Schema({
    details: { type: String, default: ""}
 });
 
-
-//
-//  Virtuals
-//
-
 //
 // Validate Data 
 //
@@ -50,10 +45,5 @@ MoodSchema.path('userId').validate(function(userId) {
    return(details.length <= 250)
  }, "To long, must be under 250 words");
 
-
-
-//
-// Methods
-//
 
 mongoose.model("Mood", MoodSchema);
