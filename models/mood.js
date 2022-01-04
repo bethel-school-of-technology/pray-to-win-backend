@@ -13,7 +13,8 @@ const MoodSchema = new Schema({
    mood: { type: Number, default: 0},
    changes: { type: Boolean, default: false},
    makeChanges: { type: Number},
-   details: { type: String, default: ""}
+   details: { type: String, default: ""},
+   date: { type: Date }
 });
 
 //

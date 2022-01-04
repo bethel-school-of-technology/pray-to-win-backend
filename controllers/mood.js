@@ -5,6 +5,8 @@ const mongoose = require("mongoose");
 const { wrap: async } = require("co");
 const Mood = mongoose.model("Mood");
 const resBuild = require("../shared/response").sendResponse;
+const { sendResponse } = require("../shared/response");
+const moodFunc = require('../functions/moods')
 
 exports.test = async(function (req, res, next) {
   Mood.findById();
@@ -57,6 +59,23 @@ exports.delete = async(function (req, res) {
       res.json(resBuild(false, "Failed to delete mood", err))
     } else {
       res.json(resBuild(true, "Deleted mood", result))
+    }
+  })
+});
+
+//Finding the Average Mood
+
+exports.readBetweenDates = async(function (req, res, next) {
+  let userId = req.user.id
+  let date1 = req.body.date1
+  let date2 = req.body.date2
+  Mood.find({ userId: userId, date: {$gt: date1, $lt: date2 } }, 
+    (err, result) => {
+    if (err) {
+      res.json(resBuild(false, "Failed to read mood", err))
+    } else {
+      let data = moodFunc.dateCheck(results);
+      res.json(resBuild(true, "Here are moods between", data))
     }
   })
 });
