@@ -11,7 +11,7 @@ exports.getMoodAvg = () => {
     });
     let avgMoodVal = moodValue / totalMoods;
 
-    let data = [
+    data = [
         {avg: avgMoodVal}, moods
     ]
     console.log(moods);

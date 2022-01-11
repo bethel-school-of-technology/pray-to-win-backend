@@ -15,18 +15,35 @@ exports.test = async(function (req, res, next) {
 
 exports.create = async(function* (req, res) {
   const mood = new Mood(req.body);
-  console.log(mood);
+  if (!req.user)
+    res
+      .status(400)
+      .json(resBuild(false, "User ID not found. Cannot create mood."));
+  else {
+    let mood = new Mood(req.body);
+    mood.userId = req.user.id;
   try {
     yield mood.save();
     res.json(resBuild(true, "Mood Create Route works!", mood));
   } catch (err) {
     res.status(400).json(resBuild(false, "Failed to create mood.", err));
-  }
+  }}
 });
 
 exports.read = async(function (req, res, next) {
   let reqId = req.query.id;
   Mood.findOne({ _id: reqId }, (err, result) => {
+    if (err) {
+      res.json(resBuild(false, "Failed to read mood", err))
+    } else {
+      res.json(resBuild(true, "Read mood", result))
+    }
+  })
+});
+
+exports.readAll = async(function (req, res, next) {
+  let userId = req.user.id
+  Mood.find({ userId:  userId}, (err, result) => {
     if (err) {
       res.json(resBuild(false, "Failed to read mood", err))
     } else {
@@ -69,13 +86,15 @@ exports.readBetweenDates = async(function (req, res, next) {
   let userId = req.user.id
   let date1 = req.body.date1
   let date2 = req.body.date2
+  if (!date1 || !date2) {
+    res.json(resBuild(false, "Missing Date Data"))
+  } 
   Mood.find({ userId: userId, date: {$gt: date1, $lt: date2 } }, 
     (err, result) => {
     if (err) {
-      res.json(resBuild(false, "Failed to read mood", err))
+      res.json(resBuild(false, "Failed to Find Data Between Dates", err))
     } else {
-      let data = moodFunc.dateCheck(results);
-      res.json(resBuild(true, "Here are moods between", data))
+      res.json(resBuild(true, "Here are moods between", result))
     }
   })
 });
