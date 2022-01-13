@@ -65,7 +65,7 @@ exports.update = async(function (req, res, next) {
       .status(400)
       .json(resBuild(false, "User ID not found. Cannot update mood."));
     else {
-    if(req.body.mood) update.mood = req.body.mood;
+    if(req.body.mood != null) update.mood = req.body.mood;
     if(req.body.changes) update.changes = req.body.changes 
     if(req.body.makeChanges) update.makeChanges = req.body.makeChanges;
     if(req.body.details) update.details = req.body.details;
