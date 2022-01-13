@@ -32,13 +32,18 @@ exports.create = async(function* (req, res) {
 
 exports.read = async(function (req, res, next) {
   let reqId = req.query.id;
+  if (!req.user)
+    res
+      .status(400)
+      .json(resBuild(false, "User ID not found. Cannot create mood."));
+  else {
   Mood.findOne({ _id: reqId }, (err, result) => {
     if (err) {
       res.json(resBuild(false, "Failed to read mood", err))
     } else {
       res.json(resBuild(true, "Read mood", result))
     }
-  })
+  })}
 });
 
 exports.readAll = async(function (req, res, next) {
@@ -55,6 +60,11 @@ exports.readAll = async(function (req, res, next) {
 exports.update = async(function (req, res, next) {
   let reqId = req.body.id;
   let update = {};
+  if (!req.user)
+    res
+      .status(400)
+      .json(resBuild(false, "User ID not found. Cannot update mood."));
+    else {
     if(req.body.mood) update.mood = req.body.mood;
     if(req.body.changes) update.changes = req.body.changes 
     if(req.body.makeChanges) update.makeChanges = req.body.makeChanges;
@@ -66,18 +76,23 @@ exports.update = async(function (req, res, next) {
       res.json(resBuild(true, "Updated mood", result))
     }
     const opts = { new: true };
-  })
+  })}
 });
 
 exports.delete = async(function (req, res) {
   let reqId = req.body.id;
+  if (!req.user)
+    res
+      .status(400)
+      .json(resBuild(false, "User ID not found. Cannot edit mood."));
+      else {
   Mood.findOneAndDelete({ _id: reqId }, {}, (err, result) => {
     if (err) {
       res.json(resBuild(false, "Failed to delete mood", err))
     } else {
       res.json(resBuild(true, "Deleted mood", result))
     }
-  })
+  })}
 });
 
 //Finding the Average Mood
