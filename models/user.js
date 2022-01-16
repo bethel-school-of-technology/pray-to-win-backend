@@ -4,7 +4,7 @@
 var mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const bcrypt = require("bcrypt");
-const UserProfileSchema = require('./userProfile')
+const UserProfileSchema = require("./userProfile");
 
 //
 // Schema
@@ -15,7 +15,8 @@ const UserSchema = new Schema({
   username: { type: String, default: "" },
   hashed_password: { type: String, default: "" },
   authToken: { type: String, default: "" },
-  profile: { UserProfileSchema},
+  profile: { UserProfileSchema },
+  tokens: [{ token: { type: String }, hashed_address: { type: String } }],
 });
 
 //
@@ -29,6 +30,16 @@ UserSchema.virtual("password")
   .get(function () {
     return this._password;
   });
+
+UserSchema.virtual("activeToken")
+  .set(function (active) {
+    this._activeToken = { token: active.token, address: active.address };
+    this.tokens.push({
+      hashed_address: this.hashAddress(active.address),
+      token: active.token,
+    });
+  })
+  .get(function () {});
 
 //
 // Validate Data
@@ -67,14 +78,9 @@ UserSchema.methods = {
   //
   // Check Password match
   //
-  authenticate: function (password, callback) {
-    // THIS IS NOT USING HASHING YET! UPDATE THIS
-    bcrypt.compare(password, this.hashed_password, function (err, match) {
-      if (err) {
-        return callback(err);
-      }
-      callback(null, match);
-    });
+  authenticate: async function (password) {
+    let checkPassword = await bcrypt.compare(password, this.hashed_password);
+    return checkPassword;
   },
 
   //
@@ -85,6 +91,29 @@ UserSchema.methods = {
     if (!password) return "";
     try {
       return bcrypt.hashSync(password, 10);
+    } catch (err) {
+      return "";
+    }
+  },
+
+  //
+  // Check Address match
+  //
+  authAddress: async function (tokenIndex, address) {
+    let check = await bcrypt.compare(
+      address,
+      this.tokens[tokenIndex].hashed_address
+    );
+    return check;
+  },
+
+  //
+  // Hash Address Function
+  //
+  hashAddress: function (address) {
+    if (!address) return "";
+    try {
+      return bcrypt.hashSync(address, 10);
     } catch (err) {
       return "";
     }
