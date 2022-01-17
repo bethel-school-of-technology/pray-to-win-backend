@@ -4,29 +4,19 @@
 var mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-
-
 //
 // Schema
 //
 const UserProfileSchema = new Schema({
-    userId: { type: String},
-    color: { type: Array},
-    totalMoods: { type: String, default: "" },
-    moodPom: { type: Number, default: 0 },
+  userId: { type: String },
+  name: { type: String },
+  created: { type: Date, default: Date.now },
+  totalMoods: { type: Number, default: 0 },
 });
 
 //
 //  Virtuals
 //
-UserProfileSchema.virtual("avgMood")
-  .set(function (password) {
-      this.avgMood = this.moodPom / this.totalMoods
-  })
-  .get(function () {
-        let avg = this.moodPom / this.totalMoods;
-        return avg
-  });
 
 //
 // Validate Data
@@ -36,5 +26,6 @@ UserProfileSchema.virtual("avgMood")
 // Methods
 //
 
-
 mongoose.model("UserProfile", UserProfileSchema);
+
+exports.schema = UserProfileSchema;

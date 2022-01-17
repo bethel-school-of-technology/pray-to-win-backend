@@ -4,18 +4,19 @@
 var mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const bcrypt = require("bcrypt");
-const UserProfileSchema = require("./userProfile");
+const UserProfileSchema = require("./userProfile").schema;
+const UserSettingsSchema = require("./userSettings").schema;
 
 //
 // Schema
 //
 const UserSchema = new Schema({
-  name: { type: String, default: "" },
   email: { type: String, default: "" },
   username: { type: String, default: "" },
   hashed_password: { type: String, default: "" },
   authToken: { type: String, default: "" },
-  profile: { UserProfileSchema },
+  profile: { type: UserProfileSchema, default: () => ({}) },
+  settings: { type: UserSettingsSchema, default: () => ({}) },
   tokens: [{ token: { type: String }, hashed_address: { type: String } }],
 });
 
@@ -44,9 +45,6 @@ UserSchema.virtual("activeToken")
 //
 // Validate Data
 //
-UserSchema.path("name").validate(function (name) {
-  return name.length;
-}, "Name required");
 
 UserSchema.path("email").validate(function (email) {
   return email.length;

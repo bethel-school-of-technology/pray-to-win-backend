@@ -7,6 +7,7 @@
 //
 const authController = require("../controllers/auth");
 const moodController = require("../controllers/mood");
+const profileController = require("../controllers/profile");
 
 //
 // Middleware
@@ -33,20 +34,16 @@ module.exports = function (app, passport) {
   //
   // User Profile Routes
   //
-  app.get("/profile/id", [authMiddleware.verifyToken], authController.test);
+  app.get(
+    "/user/profile",
+    [authMiddleware.verifyToken],
+    profileController.getProfile
+  );
 
   //
   // Mood Routes
   //
   app.get("/mood/test", moodController.test);
-
-  app.post("/mood/create", [authMiddleware.verifyToken, moodController.create);
-  app.get("/mood/read", [authMiddleware.verifyToken], moodController.read)
-  app.put("/mood/update", [authMiddleware.verifyToken], moodController.update);
-  app.post("/mood/delete", [authMiddleware.verifyToken], moodController.delete);
-  app.post("/mood/rbd", [authMiddleware.verifyToken], moodController.readBetweenDates)
-  app.get("/mood/readAll", [authMiddleware.verifyToken], moodController.readAll)
-  app.post("/mood/year", [authMiddleware.verifyToken], moodController.yearGrab)
 
   app.post("/mood/create", [authMiddleware.verifyToken], moodController.create);
   app.get("/mood/read", [authMiddleware.verifyToken], moodController.read);
@@ -62,5 +59,5 @@ module.exports = function (app, passport) {
     [authMiddleware.verifyToken],
     moodController.readAll
   );
-
+  app.post("/mood/year", [authMiddleware.verifyToken], moodController.yearGrab);
 };

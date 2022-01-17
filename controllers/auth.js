@@ -4,9 +4,6 @@
 const mongoose = require("mongoose");
 const { wrap: async } = require("co");
 const User = mongoose.model("User");
-var jwt = require("jsonwebtoken");
-const secret = process.env.JWT_SECRET;
-const config = require("../config").getConfig;
 const resBuild = require("../shared/response").sendResponse;
 const af = require("../functions/auth"); // Auth Functions
 
@@ -14,15 +11,24 @@ exports.test = async(function (req, res, next) {
   res.json(resBuild(true, "Test Route Works!"));
 });
 
-exports.create = async(function* (req, res) {
-  const user = new User(req.body);
+exports.create = async function (req, res) {
   try {
-    yield user.save();
+    let userData = {
+      username: req.body.username,
+      password: req.body.password,
+      email: req.body.email,
+    };
+    let user = new User(userData);
+    user.profile = { userId: user._id, name: req.body.name };
+    user.settings = { userId: user._id };
+    let saveUser = await user.save();
+    console.log(saveUser);
+    console.log("is save user");
     res.json(resBuild(true, "User Created!", { username: user.username }));
   } catch (err) {
     res.status(400).json(resBuild(false, "User Creation Error", err));
   }
-});
+};
 
 exports.login = async function (req, res) {
   let username = req.body.username;
