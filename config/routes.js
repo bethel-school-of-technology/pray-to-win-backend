@@ -42,4 +42,5 @@ module.exports = function (app, passport) {
   app.post("/mood/delete", [authGuard.verifyToken], moodController.delete);
   app.post("/mood/rbd", [authGuard.verifyToken], moodController.readBetweenDates)
   app.get("/mood/readAll", [authGuard.verifyToken], moodController.readAll)
+  app.post("/mood/year", [authGuard.verifyToken], moodController.yearGrab)
 };
