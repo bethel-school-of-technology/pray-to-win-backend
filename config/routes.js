@@ -49,11 +49,7 @@ module.exports = function (app, passport) {
   app.get("/mood/all", [authMiddleware.verifyToken], moodController.readAll);
   app.get("/mood/:id", [authMiddleware.verifyToken], moodController.readOne);
   app.put("/mood/update", [authMiddleware.verifyToken], moodController.update);
-  app.delete(
-    "/mood/delete",
-    [authMiddleware.verifyToken],
-    moodController.delete
-  );
+  app.post("/mood/delete", [authMiddleware.verifyToken], moodController.delete);
   app.post(
     "/mood/rbd",
     [authMiddleware.verifyToken],
