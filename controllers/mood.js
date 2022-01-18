@@ -114,6 +114,7 @@ exports.update = async function (req, res, next) {
     // Checks for user object
     // from auth middleware
     if (!req.user) throw "Not signed in.";
+    let userId = req.user.id;
 
     // Check for ID in request
     let reqId = req.body.id;
@@ -127,7 +128,10 @@ exports.update = async function (req, res, next) {
     if (req.body.details) moodUpdate.details = req.body.details;
 
     // Updates and saves the mood data.
-    let saveMood = await Mood.findOneAndUpdate({ _id: reqId }, moodUpdate);
+    let saveMood = await Mood.findOneAndUpdate(
+      { _id: reqId, userId: userId },
+      moodUpdate
+    );
     if (!saveMood) throw "Failed to update mood.";
 
     res.status(200).json(resBuild(true, "Updated mood", saveMood));
@@ -143,6 +147,7 @@ exports.delete = async function (req, res) {
     // Checks for user object
     // from auth middleware
     if (!req.user) throw "Not signed in.";
+    let userId = req.user.id;
 
     // Checks for ID in body
     let moodId = req.body.id;
@@ -150,7 +155,10 @@ exports.delete = async function (req, res) {
 
     // Find and Delete Mood data
     let didProfileUpdate = {};
-    let deleteMood = await Mood.findOneAndDelete({ _id: moodId });
+    let deleteMood = await Mood.findOneAndDelete({
+      _id: moodId,
+      userId: userId,
+    });
     if (!deleteMood) throw "Failed to delete mood " + moodId;
     // decrease user's total mood count in their profile
     else didProfileUpdate = await updateUserMoodCount(req.userObject, -1);
