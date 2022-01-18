@@ -43,12 +43,17 @@ module.exports = function (app, passport) {
   //
   // Mood Routes
   //
-  app.get("/mood/test", moodController.test);
+  app.get("/mood/test", [authMiddleware.verifyToken], moodController.test);
 
   app.post("/mood/create", [authMiddleware.verifyToken], moodController.create);
-  app.get("/mood/read", [authMiddleware.verifyToken], moodController.read);
+  app.get("/mood/all", [authMiddleware.verifyToken], moodController.readAll);
+  app.get("/mood/:id", [authMiddleware.verifyToken], moodController.readOne);
   app.put("/mood/update", [authMiddleware.verifyToken], moodController.update);
-  app.post("/mood/delete", [authMiddleware.verifyToken], moodController.delete);
+  app.delete(
+    "/mood/delete",
+    [authMiddleware.verifyToken],
+    moodController.delete
+  );
   app.post(
     "/mood/rbd",
     [authMiddleware.verifyToken],

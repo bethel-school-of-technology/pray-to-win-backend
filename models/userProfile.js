@@ -12,6 +12,7 @@ const UserProfileSchema = new Schema({
   name: { type: String },
   created: { type: Date, default: Date.now },
   totalMoods: { type: Number, default: 0 },
+  mIdCount: { type: Number, default: 0 },
 });
 
 //

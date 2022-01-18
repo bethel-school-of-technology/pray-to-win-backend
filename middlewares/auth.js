@@ -28,6 +28,7 @@ exports.verifyToken = async (req, res, next) => {
     req.user = decoded;
     req.profile = user.profile;
     req.settings = user.settings;
+    req.userObject = user;
     next();
   } catch (errMessage) {
     if (!errMessage) errMessage = "Default error.";

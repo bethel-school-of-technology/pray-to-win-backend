@@ -8,114 +8,193 @@ const resBuild = require("../shared/response").sendResponse;
 const { sendResponse } = require("../shared/response");
 const moodFunc = require("../functions/moods");
 
-exports.test = async(function (req, res, next) {
-  Mood.findById();
+async function updateUserMoodCount(user, value) {
+  try {
+    if (!user) throw "No user";
+    if (value > 1 || value < -1) throw "Bad value";
+    user.profile.totalMoods = user.profile.totalMoods + value;
+    if (value === 1) user.profile.mIdCount++;
+    let saveUser = await user.save();
+    return { success: true, message: "Updated Total Mood value by " + value };
+  } catch (errorMessage) {
+    return { success: false, message: errorMessage };
+  }
+}
+
+exports.test = async function (req, res, next) {
+  let user = req.userObject;
+  user.profile.totalMoods = user.profile.totalMoods + 1;
+  await user.save();
   res.json(resBuild(true, "Mood Test Route works!"));
-});
+};
 
-exports.create = async(function* (req, res) {
-  const mood = new Mood(req.body);
-  if (!req.user)
-    res
-      .status(400)
-      .json(resBuild(false, "User ID not found. Cannot create mood."));
-  else {
-    let mood = new Mood(req.body);
-    mood.userId = req.user.id;
-    try {
-      yield mood.save();
-      res.json(resBuild(true, "Mood Create Route works!", mood));
-    } catch (err) {
-      res.status(400).json(resBuild(false, "Failed to create mood.", err));
-    }
+exports.create = async function (req, res) {
+  try {
+    // Checks for user object
+    // from auth middleware
+    if (!req.user) throw "Not signed in.";
+    let userId = req.user.id;
+
+    // Verifies Mood Data
+    // Creaties moodData object
+    let moodData = {};
+    if (req.body.mood) moodData.mood = req.body.mood;
+    if (req.body.changes) moodData.changes = req.body.changes;
+    if (req.body.makeChanges) moodData.makeChanges = req.body.makeChanges;
+    if (req.body.details) moodData.details = req.body.details;
+    if (req.userObject.profile.mIdCount !== null)
+      moodData.mId = req.userObject.profile.mIdCount;
+    moodData.userId = userId;
+
+    // Creates mood object from mood schema
+    // saves the mood
+    // increments user's totalMood count in profile.
+    let mood = new Mood(moodData);
+    let saveMood = await mood.save();
+    let didProfileUpdate = {};
+    if (saveMood)
+      didProfileUpdate = await updateUserMoodCount(req.userObject, 1);
+
+    // creates response
+    // based on if profile update fails or not
+    let response = "Mood added.";
+    didProfileUpdate.success
+      ? (response += " Profile Total count updated!")
+      : (response += " Profile total count failed to update.");
+    res.status(200).json(resBuild(true, response, saveMood));
+  } catch (errMessage) {
+    // catches all errors
+    // and sends angry response
+    res.status(400).json(resBuild(false, errMessage));
   }
-});
+};
 
-exports.read = async(function (req, res, next) {
-  let reqId = req.query.id;
-  if (!req.user)
-    res
-      .status(400)
-      .json(resBuild(false, "User ID not found. Cannot create mood."));
-  else {
-    Mood.findOne({ _id: reqId }, (err, result) => {
-      if (err) {
-        res.json(resBuild(false, "Failed to read mood", err));
-      } else {
-        res.json(resBuild(true, "Read mood", result));
-      }
-    });
+exports.readOne = async function (req, res, next) {
+  try {
+    // Checks for user object
+    // from auth middleware
+    if (!req.user) throw "Not signed in.";
+    let userId = req.user.id;
+
+    // Checks for id query value
+    let mId = req.params.id;
+    if (!mId) throw "No id in url parameter.";
+
+    let oneMood = await Mood.find({ mId: mId, userId: userId });
+    if (oneMood.length <= 0) throw "No mood found.";
+
+    res.status(200).json(resBuild(true, "Read Mood", oneMood));
+  } catch (errMessage) {
+    // catches all errors
+    // and sends angry response
+    res.status(400).json(resBuild(false, errMessage));
   }
-});
+};
 
-exports.readAll = async(function (req, res, next) {
-  let userId = req.user.id;
-  Mood.find({ userId: userId }, (err, result) => {
-    if (err) {
-      res.json(resBuild(false, "Failed to read mood", err));
-    } else {
-      res.json(resBuild(true, "Read mood", result));
-    }
-  });
-});
+exports.readAll = async function (req, res, next) {
+  try {
+    // Checks for user object
+    // from auth middleware
+    if (!req.user) throw "Not signed in.";
+    let userId = req.user.id;
 
-exports.update = async(function (req, res, next) {
-  let reqId = req.body.id;
-  let update = {};
-  if (!req.user)
-    res
-      .status(400)
-      .json(resBuild(false, "User ID not found. Cannot update mood."));
-  else {
-    if (req.body.mood != null) update.mood = req.body.mood;
-    if (req.body.changes) update.changes = req.body.changes;
-    if (req.body.makeChanges) update.makeChanges = req.body.makeChanges;
-    if (req.body.details) update.details = req.body.details;
-    Mood.findOneAndUpdate({ _id: reqId }, update, (err, result) => {
-      if (err) {
-        res.json(resBuild(false, "Failed to update mood", err));
-      } else {
-        res.json(resBuild(true, "Updated mood", result));
-      }
-      const opts = { new: true };
-    });
+    let findAllMoods = await Mood.find({ userId: userId });
+    if (findAllMoods.length <= 0) throw "Failed to read moods.";
+
+    res.status(200).json(resBuild(true, "Found moods!", findAllMoods));
+  } catch (errMessage) {
+    // catches all errors
+    // and sends angry response
+    res.status(400).json(resBuild(false, errMessage));
   }
-});
+};
 
-exports.delete = async(function (req, res) {
-  let reqId = req.body.id;
-  if (!req.user)
-    res
-      .status(400)
-      .json(resBuild(false, "User ID not found. Cannot edit mood."));
-  else {
-    Mood.findOneAndDelete({ _id: reqId }, {}, (err, result) => {
-      if (err) {
-        res.json(resBuild(false, "Failed to delete mood", err));
-      } else {
-        res.json(resBuild(true, "Deleted mood", result));
-      }
-    });
+exports.update = async function (req, res, next) {
+  try {
+    // Checks for user object
+    // from auth middleware
+    if (!req.user) throw "Not signed in.";
+
+    // Check for ID in request
+    let reqId = req.body.id;
+    if (!reqId) throw "No id in body.";
+
+    // Build and verify the update data
+    let moodUpdate = {};
+    if (req.body.mood != null) moodUpdate.mood = req.body.mood;
+    if (req.body.changes) moodUpdate.changes = req.body.changes;
+    if (req.body.makeChanges) moodUpdate.makeChanges = req.body.makeChanges;
+    if (req.body.details) moodUpdate.details = req.body.details;
+
+    // Updates and saves the mood data.
+    let saveMood = await Mood.findOneAndUpdate({ _id: reqId }, moodUpdate);
+    if (!saveMood) throw "Failed to update mood.";
+
+    res.status(200).json(resBuild(true, "Updated mood", saveMood));
+  } catch (errMessage) {
+    // catches all errors
+    // and sends angry response
+    res.status(400).json(resBuild(false, errMessage));
   }
-});
+};
+
+exports.delete = async function (req, res) {
+  try {
+    // Checks for user object
+    // from auth middleware
+    if (!req.user) throw "Not signed in.";
+
+    // Checks for ID in body
+    let moodId = req.body.id;
+    if (!moodId) throw "No Mood ID provided.";
+
+    // Find and Delete Mood data
+    let didProfileUpdate = {};
+    let deleteMood = await Mood.findOneAndDelete({ _id: moodId });
+    if (!deleteMood) throw "Failed to delete mood " + moodId;
+    // decrease user's total mood count in their profile
+    else didProfileUpdate = await updateUserMoodCount(req.userObject, -1);
+
+    // creates response
+    // based on if profile update fails or not
+    let response = "Mood " + moodId + " deleted! ";
+    didProfileUpdate.success
+      ? (response += " Profile Total count updated!")
+      : (response += " Profile total count failed to update.");
+
+    res.status(200).json(resBuild(true, response));
+  } catch (errMessage) {
+    // catches all errors
+    // and sends angry response
+    res.status(400).json(resBuild(false, errMessage));
+  }
+};
 
 exports.readBetweenDates = async function (req, res, next) {
-  let userId = req.user.id;
-  let date1 = req.body.date1;
-  let date2 = req.body.date2;
-  if (!date1 || !date2) {
-    res.json(resBuild(false, "Missing Date Data"));
+  try {
+    // Checks for user object
+    // from auth middleware
+    if (!req.user) throw "Not signed in.";
+    let userId = req.user.id;
+
+    let date1 = req.body.date1;
+    let date2 = req.body.date2;
+    if (!date1 || !date2) throw "Both Dates required - one is missing.";
+
+    let findMood = await Mood.find({
+      userId: userId,
+      date: { $gt: date1, $lt: date2 },
+    });
+    if (!findMood) throw "Failed to find Mood with that query";
+
+    res
+      .status(200)
+      .json(resBuild(false, "Here are moods between dates", findMood));
+  } catch (errMessage) {
+    // catches all errors
+    // and sends angry response
+    res.status(400).json(resBuild(false, errMessage));
   }
-  Mood.find(
-    { userId: userId, date: { $gt: date1, $lt: date2 } },
-    (err, result) => {
-      if (err) {
-        res.json(resBuild(false, "Failed to Find Data Between Dates", err));
-      } else {
-        res.json(resBuild(true, "Here are moods between", result));
-      }
-    }
-  );
 };
 
 exports.yearGrab = async function (req, res, next) {
@@ -167,23 +246,7 @@ exports.yearGrab = async function (req, res, next) {
           numOfOther++;
           break;
       }
-      console.log(changes);
     }
-    console.log(
-      numOfDiet +
-        " " +
-        numOfRoutine +
-        " " +
-        numOfExercise +
-        " " +
-        numOfSleep +
-        " " +
-        numOfHygiene +
-        " " +
-        numOfSocial +
-        " " +
-        numOfOther
-    );
     let data = {
       numOfDiet,
       numOfRoutine,
