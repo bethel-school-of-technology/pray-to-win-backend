@@ -45,6 +45,7 @@ exports.create = async function (req, res) {
     if (req.userObject.profile.mIdCount !== null)
       moodData.mId = req.userObject.profile.mIdCount;
     moodData.userId = userId;
+    moodData.date = Date.now();
 
     // Creates mood object from mood schema
     // saves the mood
@@ -170,7 +171,7 @@ exports.delete = async function (req, res) {
       ? (response += " Profile Total count updated!")
       : (response += " Profile total count failed to update.");
 
-    res.status(200).json(resBuild(true, response));
+    res.status(200).json(resBuild(true, response, deleteMood));
   } catch (errMessage) {
     // catches all errors
     // and sends angry response
@@ -187,6 +188,7 @@ exports.readBetweenDates = async function (req, res, next) {
 
     let date1 = req.body.date1;
     let date2 = req.body.date2;
+    console.log(date1 + " " + date2);
     if (!date1 || !date2) throw "Both Dates required - one is missing.";
 
     let findMood = await Mood.find({
@@ -194,7 +196,7 @@ exports.readBetweenDates = async function (req, res, next) {
       date: { $gt: date1, $lt: date2 },
     });
     if (!findMood) throw "Failed to find Mood with that query";
-
+    console.log(findMood);
     res
       .status(200)
       .json(resBuild(false, "Here are moods between dates", findMood));
