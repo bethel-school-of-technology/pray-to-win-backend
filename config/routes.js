@@ -61,4 +61,5 @@ module.exports = function (app, passport) {
     moodController.readAll
   );
   app.post("/mood/year", [authMiddleware.verifyToken], moodController.yearGrab);
+  app.get("/mood/week", [authMiddleware.verifyToken], moodController.weekGrab);
 };

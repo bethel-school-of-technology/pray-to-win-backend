@@ -281,3 +281,30 @@ exports.yearGrab = async function (req, res, next) {
     res.status(400).json(resBuild(false, errMessage));
   }
 };
+
+exports.weekGrab = async function (req, res, next) {
+  let userId = req.user.id;
+  let date1 = Date.now();
+  let date2 = date1 - 604800000 ;
+  let aveMood = 0;
+  try {
+    if (!req.user) throw "no user";
+    if (!date1) throw "no date1";
+    if (typeof date1 !== "number") throw "not number";
+    let weekMood = await Mood.find({
+      userId: userId,
+      date: { $gt: date2, $lt: date1 },
+    });
+    console.log(aveMood);
+    
+    if (!weekMood) throw "failed to get week";
+    for (let i = 0; i < weekMood.length; i++) {
+     console.log(weekMood[i].mood)
+      aveMood = aveMood + weekMood[i].mood; 
+    };
+    aveMood = (aveMood / weekMood.length).toFixed(2);
+    res.status(200).json(resBuild(true, "date route works", aveMood ));
+  } catch (errMessage) {
+    res.status(400).json(resBuild(false, errMessage));
+  }
+};
